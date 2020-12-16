@@ -24,11 +24,17 @@ def get_route(points):
 def get_map(info_route):
     m = folium.Map(
             location=np.mean(info_route["stops"], axis=0),
-            zoom_start=13,
+            zoom_start=12,
         )
     folium.PolyLine(info_route["route"], weight=8, color="blue", opacity=0.6).add_to(m)
-    for stop in info_route["stops"]:
-        folium.Marker(
-                location=stop, icon=folium.Icon(icon="male", prefix="fa", color="blue")
-            ).add_to(m)
+    n_points = len(info_route["stops"])
+    for i, stop in enumerate(info_route["stops"]):
+        # Escoger icono
+        if i not in {0, n_points-1}:
+            icon = folium.Icon(icon="male", prefix="fa", color="blue")
+        elif i == 0:
+            icon = folium.Icon(icon="play", prefix="fa", color="blue")
+        elif i == n_points-1:
+            icon = folium.Icon(icon="stop", prefix="fa", color="blue")
+        folium.Marker(location=stop, icon=icon, color="blue").add_to(m)
     return m
