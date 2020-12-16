@@ -24,7 +24,7 @@ def get_route(points):
 def get_map(info_route):
     m = folium.Map(
             location=np.mean(info_route["stops"], axis=0),
-            zoom_start=12,
+            zoom_start=13,
         )
     folium.PolyLine(info_route["route"], weight=8, color="blue", opacity=0.6).add_to(m)
     n_points = len(info_route["stops"])
