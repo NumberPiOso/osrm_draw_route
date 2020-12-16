@@ -3,33 +3,21 @@ import polyline
 import requests
 
 
-def get_route(points, start_id, finish_id):
-    pickup_lat, pickup_lon = points.loc[start_id]
-    dropoff_lat, dropoff_lon = points.loc[finish_id]
-
-    loc = "{},{};{},{}".format(pickup_lon, pickup_lat, dropoff_lon, dropoff_lat)
-    url = "http://localhost:5000/route/v1/driving/"
+def get_route(points):
+    lats = points["Latitud"]
+    lons = points["Longitud"]
+    loc = ';'.join(f"{lon},{lat}" for lon, lat in zip(lons, lats))
+    url = "https://router.project-osrm.org/route/v1/driving/"
     r = requests.get(url + loc)
     if r.status_code != 200:
         return {}
-
     res = r.json()
     routes = polyline.decode(res["routes"][0]["geometry"])
-    start_point = [
-        res["waypoints"][0]["location"][1],
-        res["waypoints"][0]["location"][0],
-    ]
-    end_point = [res["waypoints"][1]["location"][1], res["waypoints"][1]["location"][0]]
-    distance = res["routes"][0]["distance"]
-
-    out = {
+    info_route = {
         "route": routes,
-        "start_point": start_point,
-        "end_point": end_point,
-        "distance": distance,
+        "stops": list(zip(lats, lons)),
     }
-
-    return out
+    return info_route
 
 
 def get_map(route):
