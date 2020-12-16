@@ -1,6 +1,7 @@
 import folium
 import polyline
 import requests
+import numpy as np
 
 
 def get_route(points):
@@ -20,24 +21,14 @@ def get_route(points):
     return info_route
 
 
-def get_map(route):
-
+def get_map(info_route):
     m = folium.Map(
-        location=[
-            (route["start_point"][0] + route["end_point"][0]) / 2,
-            (route["start_point"][1] + route["end_point"][1]) / 2,
-        ],
-        zoom_start=13,
-    )
-
-    folium.PolyLine(route["route"], weight=8, color="blue", opacity=0.6).add_to(m)
-
-    folium.Marker(
-        location=route["start_point"], icon=folium.Icon(icon="play", color="green")
-    ).add_to(m)
-
-    folium.Marker(
-        location=route["end_point"], icon=folium.Icon(icon="stop", color="red")
-    ).add_to(m)
-
+            location=np.mean(info_route["stops"], axis=0),
+            zoom_start=13,
+        )
+    folium.PolyLine(info_route["route"], weight=8, color="blue", opacity=0.6).add_to(m)
+    for stop in info_route["stops"]:
+        folium.Marker(
+                location=stop, icon=folium.Icon(icon="male", prefix="fa", color="blue")
+            ).add_to(m)
     return m
