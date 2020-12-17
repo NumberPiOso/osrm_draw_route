@@ -2,6 +2,7 @@ import folium
 import polyline
 import requests
 import numpy as np
+from folium import Marker
 
 
 def get_route(points):
@@ -16,19 +17,23 @@ def get_route(points):
     routes = polyline.decode(res["routes"][0]["geometry"])
     info_route = {
         "route": routes,
-        "stops": list(zip(lats, lons)),
+        "stops_coords": list(zip(lats, lons)),
+        "name_stops": points["id"].to_list()
     }
     return info_route
 
 
 def get_map(info_route):
+    stops_coords = info_route["stops_coords"]
+    route_poly = info_route["route"]
+    name_stops = info_route["name_stops"]
     m = folium.Map(
-            location=np.mean(info_route["stops"], axis=0),
+            location=np.mean(stops_coords, axis=0),
             zoom_start=13,
         )
-    folium.PolyLine(info_route["route"], weight=8, color="blue", opacity=0.6).add_to(m)
-    n_points = len(info_route["stops"])
-    for i, stop in enumerate(info_route["stops"]):
+    folium.PolyLine(route_poly, weight=8, color="blue", opacity=0.6).add_to(m)
+    n_points = len(stops_coords)
+    for i, (stop, stp_nm) in enumerate(zip(stops_coords, name_stops)):
         # Escoger icono
         if i not in {0, n_points-1}:
             icon = folium.Icon(icon="male", prefix="fa", color="blue")
@@ -36,5 +41,5 @@ def get_map(info_route):
             icon = folium.Icon(icon="play", prefix="fa", color="blue")
         elif i == n_points-1:
             icon = folium.Icon(icon="stop", prefix="fa", color="blue")
-        folium.Marker(location=stop, icon=icon, color="blue").add_to(m)
+        Marker(location=stop, icon=icon, color="blue", popup=stp_nm).add_to(m)
     return m
