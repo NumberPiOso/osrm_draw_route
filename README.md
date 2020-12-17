@@ -1,6 +1,7 @@
 # osrm_draw_route
 
-Repositorio creado con la intención de crear  visualizaciones en mapas interactivos de rutas producidas por [OSRM](http://project-osrm.org/).
+
+Repositorio creado con la intención de crear  visualizaciones en mapas interactivos gratuitamente utilizando [OSRM](http://project-osrm.org/) y Python .
 Actualmente se obtienen rutas entre dos puntos arbitrarios, pero se desea generalizarlo para exponer múltiples rutas con un número variables de paradas cada una.
 
 ![](docs/imgs/map_stops.JPG)
