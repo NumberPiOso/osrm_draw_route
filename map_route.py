@@ -7,7 +7,18 @@ from folium import Marker
 import itertools
 
 
-def get_route(points):
+def get_route(points: pd.DataFrame) -> dict:
+    """
+    Obtiene información de la ruta calculandola usando osrm.
+
+    Args:
+        points: Puntos por los cuales pasa la ruta. Contiene columnas "Latitud",
+            "Longitud" e "id".
+
+    Returns:
+        dict: Información de la ruta.
+            Diccionario con las llaves "route", "stops_coords" y "name_stops".
+    """
     lats = points["Latitud"]
     lons = points["Longitud"]
     loc = ";".join(f"{lon},{lat}" for lon, lat in zip(lons, lats))
@@ -25,7 +36,21 @@ def get_route(points):
     return info_route
 
 
-def get_map(info_route):
+def get_map(info_route: dict) -> folium.Map:
+    """
+    Calcula el mapa interactivo.
+
+    Args:
+        info_route (dict): Contiene las llaves "stops_coords", "route" e "ids"
+            - "route": List que contiene todos los puntos de la ruta, incluso los que no
+                son paradas, generalmente es generada como Polyline.
+            - "stops_coords": Lista que contiene las coordenadas latitud, longitud de
+                cada PARADA.
+            - "name_stops": Lista con nombre de cada PARADAS
+
+    Returns:
+        folium.Map: Mapa generado.
+    """
     stops_coords = info_route["stops_coords"]
     route_poly = info_route["route"]
     name_stops = info_route["name_stops"]
@@ -44,7 +69,15 @@ def get_map(info_route):
     return m
 
 
-def add_grouped_users(m, grouped_users: pd.DataFrame) -> None:
+def add_grouped_users(m: folium.Map, grouped_users: pd.DataFrame) -> None:
+    """
+    Cambia _inplace_ mapa m para añadir usuarios agrupados.
+
+    Args:
+        m: Mapa sobre el cuál se desean añadir los usuarios.
+        grouped_users: Tabla con la información de los usuarios agrupados. Contiene
+            columnas "from_lat", "from_lon", "to_lat", "to_lon" y opcionalmente "id".
+    """
     coords_cols = ["from_lat", "from_lon", "to_lat", "to_lon"]
     id_users = (
         grouped_users["id"] if "id" in grouped_users.columns else itertools.repeat(None)
