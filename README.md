@@ -11,5 +11,6 @@ Actualmente se obtienen rutas entre dos puntos arbitrarios, pero se desea genera
 ## Notebook mapa interactivo
 - [Ejemplo paradas](https://nbviewer.jupyter.org/github/NumberPiOso/osrm_draw_route/blob/main/example_1.ipynb)
 - [Ejemplo agrupaciones](https://nbviewer.jupyter.org/github/NumberPiOso/osrm_draw_route/blob/main/example_grouped_users.ipynb)
+- [Ejemplo múltiples rutas](https://nbviewer.jupyter.org/github/NumberPiOso/osrm_draw_route/blob/main/multiple_routes.ipynb)
 ## Referencias
 - https://www.thinkdatascience.com/post/2020-03-03-osrm/osrm/
