@@ -1,10 +1,12 @@
+import itertools
+
 import folium
-import polyline
-import requests
+import folium.plugins
 import numpy as np
 import pandas as pd
+import polyline
+import requests
 from folium import Marker
-import itertools
 
 
 def get_route(points: pd.DataFrame) -> dict:
@@ -36,7 +38,7 @@ def get_route(points: pd.DataFrame) -> dict:
     return info_route
 
 
-def get_map(info_route: dict) -> folium.Map:
+def map_route(info_route: dict, animated: bool = False) -> folium.Map:
     """
     Calcula el mapa interactivo.
 
@@ -47,6 +49,8 @@ def get_map(info_route: dict) -> folium.Map:
             - "stops_coords": Lista que contiene las coordenadas latitud, longitud de
                 cada PARADA.
             - "name_stops": Lista con nombre de cada PARADAS
+        animated (bool): Verdadero si desea animar la polyline con plugin "Antpath".
+            Por defecto es Falso.
 
     Returns:
         folium.Map: Mapa generado.
@@ -55,7 +59,10 @@ def get_map(info_route: dict) -> folium.Map:
     route_poly = info_route["route"]
     name_stops = info_route["name_stops"]
     m = folium.Map(location=np.mean(stops_coords, axis=0), zoom_start=13,)
-    folium.PolyLine(route_poly, weight=8, color="blue", opacity=0.6).add_to(m)
+    if animated:
+        folium.plugins.AntPath(locations=route_poly, dash_array=[10, 100]).add_to(m)
+    else:
+        folium.PolyLine(route_poly, weight=8, color="blue", opacity=0.6).add_to(m)
     n_points = len(stops_coords)
     for i, (stop, stp_nm) in enumerate(zip(stops_coords, name_stops)):
         # Escoger icono
@@ -71,7 +78,7 @@ def get_map(info_route: dict) -> folium.Map:
 
 def add_grouped_users(m: folium.Map, grouped_users: pd.DataFrame) -> None:
     """
-    Cambia _inplace_ mapa m para añadir usuarios agrupados.
+    Cambia mapa "m" para añadir usuarios agrupados.
 
     Args:
         m: Mapa sobre el cuál se desean añadir los usuarios.
