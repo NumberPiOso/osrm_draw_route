@@ -1,0 +1,8 @@
+{
+    "python.linting.flake8Args": [
+        "--max-line-length=89",
+    ],
+    "editor.rulers": [
+        89
+    ],
+}
