@@ -60,20 +60,11 @@ def map_route(info_route: dict, animated: bool = False) -> folium.Map:
     route_poly = info_route["route"]
     name_stops = info_route["name_stops"]
     m = folium.Map(location=np.mean(stops_coords, axis=0), zoom_start=13,)
-    if animated:
-        folium.plugins.AntPath(locations=route_poly, dash_array=[10, 100]).add_to(m)
-    else:
-        folium.PolyLine(route_poly, weight=8, color="blue", opacity=0.6).add_to(m)
-    n_points = len(stops_coords)
-    for i, (stop, stp_nm) in enumerate(zip(stops_coords, name_stops)):
-        # Escoger icono
-        if i not in {0, n_points - 1}:
-            icon = folium.Icon(icon="bus", prefix="fa", color="blue")
-        elif i == 0:
-            icon = folium.Icon(icon="play", prefix="fa", color="blue")
-        elif i == n_points - 1:
-            icon = folium.Icon(icon="stop", prefix="fa", color="blue")
-        Marker(location=stop, icon=icon, color="blue", popup=stp_nm).add_to(m)
+    # Dibujar linea ruta
+    col = "blue"
+    _add_polyline(m, route_poly, animated, col)
+    # Dibuja puntos "Marcadores sobre el mapa"
+    _add_route_stops(m, col, stops_coords, name_stops)
     return m
 
 
@@ -109,23 +100,37 @@ def mult_routes(multiple_infos: List[dict], colors: List, animated: bool) -> fol
         name_stops = info_route["name_stops"]
         color = colors[i]
         # Dibujar linea ruta
-        if animated:
-            folium.plugins.AntPath(
-                locations=route_poly, dash_array=[10, 100], color=color
-            ).add_to(m)
-        else:
-            folium.PolyLine(route_poly, weight=8, color=color, opacity=0.6).add_to(m)
+        _add_polyline(m, route_poly, animated, color)
         # Dibuja puntos "Marcadores sobre el mapa"
-        n_points = len(stops_coords)
-        for i, (stop, stp_nm) in enumerate(zip(stops_coords, name_stops)):
-            if i not in {0, n_points - 1}:
-                icon = folium.Icon(icon="bus", prefix="fa", color=color)
-            elif i == 0:
-                icon = folium.Icon(icon="play", prefix="fa", color=color)
-            elif i == n_points - 1:
-                icon = folium.Icon(icon="stop", prefix="fa", color=color)
-            Marker(location=stop, icon=icon, color=color, popup=stp_nm).add_to(m)
+        _add_route_stops(m, color, stops_coords, name_stops)
     return m
+
+
+def _add_polyline(m: folium.Map, route_poly: List, animated: bool, color: str) -> None:
+    """Añade al mapa Ruta "route_poly"."""
+    if animated:
+        folium.plugins.AntPath(
+            locations=route_poly, dash_array=[10, 100], color=color
+        ).add_to(m)
+    else:
+        folium.PolyLine(route_poly, weight=8, color=color, opacity=0.6).add_to(m)
+
+
+def _add_route_stops(
+    m: folium.Map, color: str, stops_coords: List = [], name_stops: List = []
+) -> None:
+    """Añade al mapa icono de estaciones "stops_coords" con nombre "name_stops"."""
+
+    # Dibuja puntos "Marcadores sobre el mapa"
+    n_points = len(stops_coords)
+    for i, (stop, stp_nm) in enumerate(zip(stops_coords, name_stops)):
+        if i not in {0, n_points - 1}:
+            icon = folium.Icon(icon="bus", prefix="fa", color=color)
+        elif i == 0:
+            icon = folium.Icon(icon="play", prefix="fa", color=color)
+        elif i == n_points - 1:
+            icon = folium.Icon(icon="stop", prefix="fa", color=color)
+        Marker(location=stop, icon=icon, color=color, popup=stp_nm).add_to(m)
 
 
 def add_grouped_users(m: folium.Map, grouped_users: pd.DataFrame) -> None:
