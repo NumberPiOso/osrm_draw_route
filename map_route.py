@@ -7,6 +7,7 @@ import pandas as pd
 import polyline
 import requests
 from folium import Marker
+from typing import List
 
 
 def get_route(points: pd.DataFrame) -> dict:
@@ -73,6 +74,57 @@ def map_route(info_route: dict, animated: bool = False) -> folium.Map:
         elif i == n_points - 1:
             icon = folium.Icon(icon="stop", prefix="fa", color="blue")
         Marker(location=stop, icon=icon, color="blue", popup=stp_nm).add_to(m)
+    return m
+
+
+def mult_routes(multiple_infos: List[dict], colors: List, animated: bool) -> folium.Map:
+    """
+    Calcula el mapa interactivo para múltiples rutas.
+
+    Args:
+        info_routes (List[dict]): Lista con diccionarios, donde cada diccionario
+            representa una ruta en el mapa.
+            info_route (dict): Contiene las llaves "stops_coords", "route" e "ids"
+                - "route": List que contiene todos los puntos de la ruta, incluso los que
+                    no son paradas, generalmente es generada como Polyline.
+                - "stops_coords": Lista que contiene las coordenadas latitud, longitud de
+                    cada PARADA.
+                - "name_stops": Lista con nombre de cada PARADAS
+        animated (bool): Verdadero si desea animar la polyline con plugin "Antpath".
+            Por defecto es Falso.
+
+    Returns:
+        folium.Map: Mapa generado.
+    """
+    # Generar mapa
+    centroide_paradas = np.mean(
+        np.concatenate([info["stops_coords"] for info in multiple_infos]), axis=0
+    )
+    m = folium.Map(location=centroide_paradas, zoom_start=13)
+    # Dibujar rutas
+    for i, info_route in enumerate(multiple_infos):
+        # Define parametros
+        stops_coords = info_route["stops_coords"]
+        route_poly = info_route["route"]
+        name_stops = info_route["name_stops"]
+        color = colors[i]
+        # Dibujar linea ruta
+        if animated:
+            folium.plugins.AntPath(
+                locations=route_poly, dash_array=[10, 100], color=color
+            ).add_to(m)
+        else:
+            folium.PolyLine(route_poly, weight=8, color=color, opacity=0.6).add_to(m)
+        # Dibuja puntos "Marcadores sobre el mapa"
+        n_points = len(stops_coords)
+        for i, (stop, stp_nm) in enumerate(zip(stops_coords, name_stops)):
+            if i not in {0, n_points - 1}:
+                icon = folium.Icon(icon="bus", prefix="fa", color=color)
+            elif i == 0:
+                icon = folium.Icon(icon="play", prefix="fa", color=color)
+            elif i == n_points - 1:
+                icon = folium.Icon(icon="stop", prefix="fa", color=color)
+            Marker(location=stop, icon=icon, color=color, popup=stp_nm).add_to(m)
     return m
 
 
