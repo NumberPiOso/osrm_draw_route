@@ -23,6 +23,7 @@ dependencies:
   - conda-forge::djangorestframework=3.12.0
   - conda-forge::pre-commit=2.9.2
   - conda-forge::polyline=1.4.0
+  - conda-forge::folium=0.11.0
     # Linters y herramientas
   - conda-forge::pylint=2.5.2
   - conda-forge::flake8=3.8.3
@@ -32,7 +33,6 @@ dependencies:
   - conda-forge::pep257=0.7.0
   - conda-forge::pylama=7.7.1
   - conda-forge::mypy=0.782
-  - conda-forge::folium=0.11.0
   # Documentación
   - conda-forge::sphinx=3.2.1
   - conda-forge::perl=5.26.2
